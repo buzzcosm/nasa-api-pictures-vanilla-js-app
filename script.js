@@ -1,4 +1,8 @@
-
+const resultsNav = document.getElementById('resultsNav');
+const favoritesNav = document.getElementById('favoritesNav');
+const imagesContainer = document.querySelector('.images-container');
+const saveConfirmed = document.querySelector('.save-confirmed');
+const loader = document.querySelector('.loader');
 
 // NASA API
 const count = 10;
@@ -7,13 +11,61 @@ const apiUrl = `https://api.nasa.gov/planetary/apod?api_key=${apiKey}&count=${co
 
 let resultsArray = [];
 
+function updateDOM() {
+  resultsArray.forEach((result) => {
+    // Card Container
+    const card = document.createElement('div');
+    card.classList.add('card');
+    // Link
+    const link = document.createElement('a');
+    link.href = result.hdurl;
+    link.title = 'View Full Image';
+    link.target = '_blank';
+    // Image
+    const image = document.createElement('img');
+    image.src = result.url;
+    image.alt = 'NASA Picture of the Day';
+    image.loading = 'lazy';
+    image.classList.add('card-img-top');
+    // Card Body
+    const cardBody = document.createElement('div');
+    cardBody.classList.add('card-body');
+    // Card Title
+    const cardTitle = document.createElement('h5');
+    cardTitle.classList.add('card-title');
+    cardTitle.textContent = result.title;
+    // Save Text
+    const saveText = document.createElement('p');
+    saveText.classList.add('clickable');
+    saveText.textContent = 'Add To Favorites';
+    // Card Text
+    const cardText = document.createElement('p');
+    cardText.textContent = result.explanation;
+    // Footer Container
+    const footer = document.createElement('small');
+    footer.classList.add('text-muted');
+    // Date
+    const date = document.createElement('strong');
+    date.textContent = result.date;
+    // Copyright
+    const copyrightResult = result.copyright === undefined ? '' : result.copyright;
+    const copyright = document.createElement('span');
+    copyright.textContent = ` ${copyrightResult}`;
+    // Append
+    footer.append(date, copyright);
+    cardBody.append(cardTitle, saveText, cardText, footer);
+    link.appendChild(image);
+    card.append(link, cardBody);
+    imagesContainer.appendChild(card);
+  });
+}
+
 // Get 10 Images from NASA API
 async function getNasaPictures() {
   try {
     const response = await fetch(apiUrl);
     resultsArray = await response.json();
-    // displayNasaPictures();
-    console.log(resultsArray);
+    updateDOM();
   } catch (error) {
     // Catch Error Here
     console.error(error);
@@ -21,13 +73,4 @@ async function getNasaPictures() {
 }
 
 // On Load
-// const dummyData = {
-//   date: "2002-09-01",
-//   explanation: "Galaxies like colorful pieces of candy fill the Hubble Deep Field - one of humanity's most distant optical views of the Universe. The dimmest, some as faint as 30th magnitude (about four billion times fainter than stars visible to the unaided eye), are very distant galaxies and represent what the Universe looked like in the extreme past, perhaps less than one billion years after the Big Bang. To make the Deep Field image, astronomers selected an uncluttered area of the sky in the constellation Ursa Major (the Big Bear) and pointed the Hubble Space Telescope at a single spot for 10 days accumulating and combining many separate exposures. With each additional exposure, fainter objects were revealed. The final result has been used to explore the mysteries of galaxy evolution and the infant Universe.",
-//   hdurl: "https://apod.nasa.gov/apod/image/0007/deepfield_hst_big.jpg",
-//   media_type: "image",
-//   service_version: "v1",
-//   title: "The Hubble Deep Field",
-//   url: "https://apod.nasa.gov/apod/image/0007/deepfield_hst.jpg",
-// }
-// getNasaPictures();
+getNasaPictures();
